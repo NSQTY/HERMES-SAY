@@ -110,7 +110,19 @@ def register_routes(app):
         if not data:
             return return_json('请求体为空', 400)
 
+        who = data.get('who', '').strip()
+        say = data.get('say', '').strip()
         content = data.get('content', '').strip()
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        if not who or not say:
+            gate_log.log_to_file({
+                'who': who, 'say': say,
+                'time': now, 'route': 'load_module',
+                'status': 'error', 'error': 'who 或 say 为空'
+            })
+            return return_json('缺少参数：who 或 say 不能为空', 400)
+
         if not content:
             return return_json('缺少 content', 400)
 
@@ -123,7 +135,11 @@ def register_routes(app):
         try:
             compile(content + '\n', '<skill>', 'exec')
         except SyntaxError as e:
-            return return_json(f'语法错误: {e}', 400)
+            gate_log.log_to_file({
+                'who': who, 'say': say,
+                'time': now, 'route': 'load_module',
+                'status': 'error', 'error': f'语法错误: {e}'
+            })
 
         # 生成随机文件名
         name = _generate_skill_name()
@@ -144,6 +160,11 @@ def register_routes(app):
         except IOError as e:
             return return_json(f'写入 __init__.py 失败: {e}', 500)
 
+        gate_log.log_to_file({
+            'who': who, 'say': say,
+            'time': now, 'route': 'load_module',
+            'status': 'success', 'loaded': name
+        })
         return jsonify({'ok': True, 'loaded': name})
 
 

@@ -103,8 +103,8 @@ def clear_gate_log():
 
 ```json
 {
-  "who": "string (选填) — 调用者身份",
-  "say": "string (选填) — 调用说明",
+  "who": "string (必填) — 调用者身份",
+  "say": "string (必填) — 调用说明",
   "content": "string (必填) — 纯函数块，带 @RegisterVPT 装饰器"
 }
 ```
