@@ -9,6 +9,7 @@ from system.CommunicationAndExamples.FunctionExecution import execute_function
 from system.SystemSkill.bridge_utils import return_json, lookup_abbreviation, _generate_skill_name
 from datetime import datetime
 import os
+import inspect
 
 
 def register_routes(app):
@@ -26,6 +27,81 @@ def register_routes(app):
         """返回已注册函数文档列表"""
         return jsonify(VPT.FUNC_DOCUMENT)
 
+    @app.route('/windows/get_func', methods=['GET'])
+    def windows_get_func():
+        """
+        查询函数详细信息。
+
+        GET /windows/get_func?abbreviation=read_file&detail=parms,code,package
+
+        参数:
+            abbreviation: 函数缩写（必填）
+            detail: 逗号分隔的字段列表（选填，默认全部返回）
+
+        可用 detail 字段:
+            parms   — 参数签名（含默认值）
+            code    — 函数源代码
+            package — 所在模块路径
+        """
+        abbr = request.args.get('abbreviation', '').strip()
+        if not abbr:
+            return return_json('缺少 abbreviation 参数', 400)
+
+        func = lookup_abbreviation(abbr)
+        if func is None:
+            return return_json(f'简称未注册: {abbr}', 404)
+
+        result = {
+            'abbreviation': abbr,
+            'funcname': func.__name__,
+            'package': func.__module__
+        }
+
+        # 从 VPT.FUNC_DOCUMENT 找 doc
+        for entry in VPT.FUNC_DOCUMENT:
+            if abbr in entry:
+                for fname, doc in entry[abbr].items():
+                    result['doc'] = doc
+                    break
+                break
+
+        # parms: 参数签名
+        try:
+            sig = inspect.signature(func)
+            params = {}
+            for name, param in sig.parameters.items():
+                p = {'kind': param.kind.name}
+                if param.default is not inspect.Parameter.empty:
+                    p['default'] = repr(param.default)
+                params[name] = p
+            result['parms'] = params
+        except (ValueError, TypeError):
+            result['parms'] = {}
+
+        # code: 源代码
+        detail = request.args.get('detail', 'parms,code,package')
+        fields = [f.strip() for f in detail.split(',')]
+
+        if 'code' in fields:
+            try:
+                result['code'] = inspect.getsource(func)
+            except (OSError, TypeError):
+                result['code'] = None
+
+        if 'parms' not in fields:
+            result.pop('parms', None)
+        if 'code' not in fields:
+            result.pop('code', None)
+        if 'package' not in fields:
+            result.pop('package', None)
+
+        return jsonify(result)
+
+
+    @app.route('/windows/get_gate_log', methods=['GET'])
+    def windows_get_gate_log():
+        """返回门记录"""
+        return jsonify(gate_log.get_gate_log())
     @app.route('/windows/run_func', methods=['POST'])
     def windows_run_func():
         """
