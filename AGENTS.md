@@ -25,7 +25,7 @@ def hermes_say(url, who, say, abbreviation, is_return=True, **parms):
     进门前先亮身份。
 
     参数:
-        url: 桥地址 (http://192.168.1.4:1314/windows/run_func)
+        url: 桥地址 (http://<host>:1314/windows/run_func)
         who: 你是谁
         say: 来干什么
         abbreviation: 要调用的函数缩写
@@ -49,7 +49,7 @@ requests.post("...", json={"abbreviation": "read_file", "parms": {...}})
 
 # 正确：先亮身份
 result = hermes_say(
-    "http://192.168.1.4:1314/windows/run_func",
+    "http://<host>:1314/windows/run_func",
     who="hermes-agent",
     say="读取系统配置文件",
     abbreviation="read_file",

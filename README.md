@@ -15,7 +15,7 @@ Hermes Agent 运行在 WSL 里，Windows 在外面。
 ```bash
 pip install flask
 python app.py
-# → http://192.168.1.4:1314
+# → http://localhost:1314
 ```
 
 ## 快速体验
@@ -25,7 +25,7 @@ python app.py
 ```python
 import requests
 
-r = requests.post("http://192.168.1.4:1314/windows/run_func", json={
+r = requests.post("http://localhost:1314/windows/run_func", json={
     "who": "你",
     "say": "探索门的能力",
     "abbreviation": "read_file",
@@ -40,7 +40,7 @@ print(r.json()["result"])
 把函数块发给桥，桥自动写入 `Skills/` 并触发重启生效：
 
 ```bash
-curl -X POST http://192.168.1.4:1314/windows/load_module \
+curl -X POST http://localhost:1314/windows/load_module \
   -H "Content-Type: application/json" \
   -d '{"content": "@RegisterVPT(abbreviation=\"hello\", document=\"问候\")\ndef hello(name):\n    return f\"Hello, {name}!\"}'
 ```
@@ -68,7 +68,7 @@ HermesSay/
         ├── config.py              # PORT, DEBUG, HOST
         ├── bridge_utils.py        # 桥辅助函数
         ├── routes.py              # 4 个业务路由
-        └── fns_1.py               # read_file, write_file
+        ├── RAW.py                 # read_file, write_file
 ```
 
 ## 路由一览
