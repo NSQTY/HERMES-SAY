@@ -133,8 +133,10 @@ HermesSay/
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | `/` | 入口指引 |
-| GET | `/windows/get_route_doc_list` | 查看所有路由 |
-| GET | `/windows/get_func_list` | 查看所有已注册函数 |
+| GET | `/windows/get_route_doc_list` | 查看所有路由（含本文档） |
+| GET | `/windows/get_func_list` | 查看所有已注册函数缩写与说明 |
+| GET | `/windows/get_func` | 查询指定函数的参数签名、源码、模块路径 |
+| GET | `/windows/get_gate_log` | 返回门日志记录 |
 | POST | `/windows/run_func` | 执行函数 |
 | POST | `/windows/load_module` | 注册新技能 |
 

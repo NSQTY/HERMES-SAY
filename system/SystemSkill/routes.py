@@ -102,6 +102,7 @@ def register_routes(app):
     def windows_get_gate_log():
         """返回门记录"""
         return jsonify(gate_log.get_gate_log())
+    
     @app.route('/windows/run_func', methods=['POST'])
     def windows_run_func():
         """

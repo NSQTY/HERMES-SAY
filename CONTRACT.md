@@ -148,10 +148,40 @@ def hello(name):
 
 ```json
 [
-  {"read_file": {"read_file": "Reads a file and returns its content."}},
-  {"write_file": {"write_file": "Reads a file and returns its content."}}
+  {"read_file": {"read_file": "读一个文件内容，但是注意告诉用户你准备读哪个文件"}},
+  {"write_file": {"write_file": "写一个文件内容，但是注意告诉用户你准备写哪个文件"}}
 ]
 ```
+
+### 查询函数详细信息
+
+`GET /windows/get_func?abbreviation=read_file&detail=parms,code,package`
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| abbreviation | 是 | 函数缩写 |
+| detail | 否 | 逗号分隔，可选：parms, code, package。默认全部返回 |
+
+响应示例：
+
+```json
+{
+  "abbreviation": "read_file",
+  "funcname": "read_file",
+  "package": "system.SystemSkill.RAW",
+  "doc": "读一个文件内容...",
+  "parms": {
+    "file_path": {"kind": "POSITIONAL_OR_KEYWORD"},
+    "mode": {"kind": "POSITIONAL_OR_KEYWORD", "default": "'r'"},
+    "code": {"kind": "POSITIONAL_OR_KEYWORD", "default": "'utf-8'"}
+  },
+  "code": "def read_file(file_path, mode='r', code='utf-8'):\n    ..."
+}
+```
+
+### 查看门日志
+
+`GET /windows/get_gate_log`
 
 ---
 
