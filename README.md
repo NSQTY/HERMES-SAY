@@ -29,7 +29,7 @@ r = requests.post("http://localhost:1314/windows/run_func", json={
     "who": "你",
     "say": "探索门的能力",
     "abbreviation": "read_file",
-    "parms": {"file_path": "C:\\Windows\\win.ini"},
+    "parms": {"file_path": "C:\\config.ini"},
     "is_return": True
 })
 print(r.json()["result"])
@@ -69,6 +69,7 @@ HermesSay/
         ├── bridge_utils.py        # 桥辅助函数
         ├── routes.py              # 4 个业务路由
         ├── RAW.py                 # read_file, write_file
+        ├── gate_log.py            # 门日志（get_gate_log, clear_gate_log）
 ```
 
 ## 路由一览

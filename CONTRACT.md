@@ -40,9 +40,58 @@
   "say": "调用说明",
   "time": "2026-06-10 12:00:00",
   "funcname": "read_file",
+  "abbreviation": "read_file",
+  "status": "success",
   "retuValue": null
 }
 ```
+
+错误记录示例：
+
+```json
+{
+  "who": "",
+  "say": "",
+  "time": "2026-06-10 12:00:00",
+  "status": "error",
+  "error": "who 或 say 为空"
+}
+```
+
+---
+
+## 5. 门日志管理
+
+内置函数，用于查询和清理调用记录。
+
+### 查询门记录
+
+`GET /windows/get_func_list` 中查找 `get_gate_log`
+
+```python
+@RegisterVPT(abbreviation="get_gate_log", document="查询门记录，支持 limit 和 offset")
+def get_gate_log(limit=50, offset=0):
+    ...
+```
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| limit | int | 50 | 返回行数，-1 返回全部 |
+| offset | int | 0 | 跳过前 N 行 |
+
+返回 `[]` 或 JSON 对象数组。
+
+### 清理门记录
+
+`GET /windows/get_func_list` 中查找 `clear_gate_log`
+
+```python
+@RegisterVPT(abbreviation="clear_gate_log", document="清空所有门记录")
+def clear_gate_log():
+    ...
+```
+
+返回 `true` 或 `false`。
 
 ---
 

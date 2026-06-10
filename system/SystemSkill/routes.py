@@ -2,6 +2,7 @@
 桥业务路由。通过 register_routes(app) 注入 Flask 实例。
 """
 from system.SystemSkill import RAW
+from system.SystemSkill import gate_log
 from flask import jsonify, request
 from system.CommunicationAndExamples.VariablePoolTool import VPT
 from system.CommunicationAndExamples.FunctionExecution import execute_function
@@ -11,6 +12,9 @@ import os
 
 
 def register_routes(app):
+
+    # 初始化门日志
+    gate_log.init_gate_log(app.root_path)
 
     @app.route('/windows/get_route_doc_list', methods=['GET'])
     def windows_get_route_doc_list():
@@ -33,8 +37,6 @@ def register_routes(app):
             1. who 或 say 为空 → 400
             2. abbreviation 未注册 → 404
             3. 执行 → 门记录 → 按 is_return 返回
-
-        门记录格式: {who, say, time, funcname, retuValue}
         """
         if request.method != 'POST':
             return return_json('NOT IS POST', 400)
@@ -49,13 +51,25 @@ def register_routes(app):
         parms = data.get('parms', {})
         is_return = data.get('is_return', False)
 
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         # 检查 1: who 或 say 为空
         if not who or not say:
+            gate_log.log_to_file({
+                'who': who, 'say': say,
+                'time': now, 'status': 'error',
+                'error': 'who 或 say 为空'
+            })
             return return_json('缺少参数：who 或 say 不能为空', 400)
 
         # 检查 2: 简称未注册
         func = lookup_abbreviation(abbreviation)
         if func is None:
+            gate_log.log_to_file({
+                'who': who, 'say': say,
+                'time': now, 'abbreviation': abbreviation,
+                'status': 'error', 'error': '简称未注册'
+            })
             return return_json(f'简称未注册: {abbreviation}', 404)
 
         # 执行（who/say 不进函数，parms 展开为 **kwargs 传入）
@@ -63,20 +77,23 @@ def register_routes(app):
         execute_result = execute_function(func, **parms)
 
         # 门记录
-        gate_log = {
+        gate_log_entry = {
             'who': who,
             'say': say,
-            'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'time': now,
             'funcname': func_name,
+            'abbreviation': abbreviation,
+            'status': 'success',
             'retuValue': execute_result
         }
-        print(f"[GATE] {gate_log}")
+        gate_log.log_to_file(gate_log_entry)
+        print(f"[GATE] {gate_log_entry}")
 
         # 按 is_return 决定返回值
         if is_return:
-            return jsonify({'result': execute_result, 'gate': gate_log})
+            return jsonify({'result': execute_result, 'gate': gate_log_entry})
         else:
-            return jsonify({'message': '执行完成', 'gate': gate_log})
+            return jsonify({'message': '执行完成', 'gate': gate_log_entry})
 
     @app.route('/windows/load_module', methods=['POST'])
     def windows_load_module():
